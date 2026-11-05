@@ -214,6 +214,7 @@ private fun MainDestinationContent(
     onSessionSetupModeSelected: (SessionSetupMode) -> Unit = {},
     onActiveMenuSetupStepChanged: (MenuSetupStep?) -> Unit = {},
     onOpenBaselineFitnessTest: () -> Unit = {},
+    onOpenWorkoutHistory: () -> Unit = {},
     baselineFitnessTestRuntimeSnapshot: BaselineFitnessTestRuntimeSnapshot = BaselineFitnessTestRuntimeSnapshot(),
     onStartBaselineFitnessTest: () -> Unit = {},
     onStopBaselineFitnessTest: () -> Unit = {},
