@@ -2879,6 +2879,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         baselineLatestResultState.value = result
     }
 
+    fun onOpenWorkoutHistoryRequested() {
+        uiState.screen.value = AppScreen.WORKOUT_HISTORY
+    }
+
     fun onOpenBaselineFitnessTestRequested() {
         uiState.screen.value = AppScreen.BASELINE_FITNESS_TEST
     }
