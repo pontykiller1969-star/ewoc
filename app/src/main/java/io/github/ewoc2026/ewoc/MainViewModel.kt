@@ -2494,7 +2494,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             AppScreen.CONNECTING,
             AppScreen.SESSION,
-            AppScreen.STOPPING -> false
+            AppScreen.STOPPING,
+            AppScreen.WORKOUT_HISTORY -> false
         }
     }
 
@@ -2529,7 +2530,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             AppScreen.BASELINE_FITNESS_TEST,
             AppScreen.CONNECTING,
-            AppScreen.STOPPING -> false
+            AppScreen.STOPPING,
+            AppScreen.WORKOUT_HISTORY -> false
         }
     }
 
