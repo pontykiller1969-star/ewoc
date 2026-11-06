@@ -205,7 +205,7 @@ private fun MetricLineChart(
                 for (tick in 0..2) {
                     val y = bottom - plotHeight * tick / 2f
                     drawLine(Color.LightGray.copy(alpha = 0.7f), androidx.compose.ui.geometry.Offset(left, y), androidx.compose.ui.geometry.Offset(right, y), 1.dp.toPx())
-                    nativeCanvas.drawText(
+                    drawContext.canvas.nativeCanvas.drawText(
                         String.format(Locale.getDefault(), "%.0f", axisMax * tick / 2.0),
                         0f, y + 4.dp.toPx(), labelPaint,
                     )
@@ -221,7 +221,7 @@ private fun MetricLineChart(
                 val labelIndexes = listOf(0, values.size / 2, values.lastIndex).distinct()
                 labelIndexes.forEach { index ->
                     val x = if (values.size == 1) left + plotWidth / 2f else left + plotWidth * index / (values.size - 1)
-                    nativeCanvas.drawText(values[index].first.format(formatter), x - 16.dp.toPx(), size.height - 4.dp.toPx(), labelPaint)
+                    drawContext.canvas.nativeCanvas.drawText(values[index].first.format(formatter), x - 16.dp.toPx(), size.height - 4.dp.toPx(), labelPaint)
                 }
             }
         }
