@@ -121,24 +121,7 @@ internal fun WorkoutHistoryScreen(onBack: () -> Unit) {
         if (sessions.isEmpty()) {
             Text("A grafikon az első elmentett edzés után jelenik meg.")
         } else {
-            MetricLineChart(
-                title = "Edzésidő",
-                unit = "perc",
-                color = DurationChartColor,
-                values = chartData.map { it.date to it.durationMinutes },
-            )
-            MetricLineChart(
-                title = "Elégetett kalória",
-                unit = "kcal",
-                color = CaloriesChartColor,
-                values = chartData.map { it.date to it.calories },
-            )
-            MetricLineChart(
-                title = "Megtett távolság",
-                unit = "km",
-                color = DistanceChartColor,
-                values = chartData.map { it.date to it.distanceKm },
-            )
+            CombinedWorkoutChart(values = chartData)
         }
 
         Text("Korábbi edzések", style = MaterialTheme.typography.titleLarge)
@@ -168,63 +151,97 @@ internal fun WorkoutHistoryScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun MetricLineChart(
-    title: String,
-    unit: String,
-    color: Color,
-    values: List<Pair<LocalDate, Double>>,
-) {
-    val maxValue = max(1.0, values.maxOfOrNull { it.second } ?: 0.0)
-    val axisMax = ceil(maxValue / 5.0).coerceAtLeast(1.0).let { if (maxValue <= 5.0) ceil(maxValue) else it * 5.0 }
+private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
+    val durationMax = max(1.0, values.maxOfOrNull { it.durationMinutes } ?: 0.0)
+    val caloriesMax = max(1.0, values.maxOfOrNull { it.calories } ?: 0.0)
+    val distanceMax = max(1.0, values.maxOfOrNull { it.distanceKm } ?: 0.0)
     val formatter = remember { DateTimeFormatter.ofPattern("MM.dd", Locale.getDefault()) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
-                Text(unit, style = MaterialTheme.typography.labelMedium, color = color)
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Teljesítmény – napi alakulás", style = MaterialTheme.typography.titleMedium)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                ChartLegendItem(DurationChartColor, "Idő (perc)")
+                ChartLegendItem(CaloriesChartColor, "Kalória (kcal)")
+                ChartLegendItem(DistanceChartColor, "Távolság (km)")
             }
-            Canvas(Modifier.fillMaxWidth().height(154.dp)) {
+            Text(
+                "A három vonal külön-külön, a saját legnagyobb értékéhez viszonyítva van skálázva.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Canvas(Modifier.fillMaxWidth().height(190.dp)) {
                 if (values.isEmpty()) return@Canvas
-                val left = 42.dp.toPx()
+                val left = 38.dp.toPx()
                 val right = size.width - 10.dp.toPx()
                 val top = 10.dp.toPx()
                 val bottom = size.height - 28.dp.toPx()
                 val plotWidth = (right - left).coerceAtLeast(1f)
                 val plotHeight = (bottom - top).coerceAtLeast(1f)
                 val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    this.color = android.graphics.Color.DKGRAY
+                    color = android.graphics.Color.DKGRAY
                     textSize = 10.dp.toPx()
-                }
-                val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    this.color = android.graphics.Color.LTGRAY
-                    strokeWidth = 1.dp.toPx()
                 }
                 for (tick in 0..2) {
                     val y = bottom - plotHeight * tick / 2f
-                    drawLine(Color.LightGray.copy(alpha = 0.7f), androidx.compose.ui.geometry.Offset(left, y), androidx.compose.ui.geometry.Offset(right, y), 1.dp.toPx())
+                    drawLine(
+                        Color.LightGray.copy(alpha = 0.7f),
+                        androidx.compose.ui.geometry.Offset(left, y),
+                        androidx.compose.ui.geometry.Offset(right, y),
+                        1.dp.toPx(),
+                    )
                     drawContext.canvas.nativeCanvas.drawText(
-                        String.format(Locale.getDefault(), "%.0f", axisMax * tick / 2.0),
-                        0f, y + 4.dp.toPx(), labelPaint,
+                        "${tick * 50}%",
+                        0f,
+                        y + 4.dp.toPx(),
+                        labelPaint,
                     )
                 }
-                val path = Path()
-                values.forEachIndexed { index, entry ->
-                    val x = if (values.size == 1) left + plotWidth / 2f else left + plotWidth * index / (values.size - 1)
-                    val y = bottom - (entry.second / axisMax).toFloat().coerceIn(0f, 1f) * plotHeight
-                    if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                    drawCircle(color, radius = 3.dp.toPx(), center = androidx.compose.ui.geometry.Offset(x, y))
+
+                fun drawSeries(color: Color, valueAt: (DailyWorkoutTotals) -> Double, maximum: Double) {
+                    val path = Path()
+                    values.forEachIndexed { index, item ->
+                        val x = if (values.size == 1) left + plotWidth / 2f
+                            else left + plotWidth * index / (values.size - 1)
+                        val normalized = (valueAt(item) / maximum).toFloat().coerceIn(0f, 1f)
+                        val y = bottom - normalized * plotHeight
+                        if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                        drawCircle(color, radius = 2.8.dp.toPx(), center = androidx.compose.ui.geometry.Offset(x, y))
+                    }
+                    drawPath(path, color, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round))
                 }
-                drawPath(path, color, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round))
+
+                drawSeries(DurationChartColor, { it.durationMinutes }, durationMax)
+                drawSeries(CaloriesChartColor, { it.calories }, caloriesMax)
+                drawSeries(DistanceChartColor, { it.distanceKm }, distanceMax)
+
                 val labelIndexes = listOf(0, values.size / 2, values.lastIndex).distinct()
                 labelIndexes.forEach { index ->
-                    val x = if (values.size == 1) left + plotWidth / 2f else left + plotWidth * index / (values.size - 1)
-                    drawContext.canvas.nativeCanvas.drawText(values[index].first.format(formatter), x - 16.dp.toPx(), size.height - 4.dp.toPx(), labelPaint)
+                    val x = if (values.size == 1) left + plotWidth / 2f
+                        else left + plotWidth * index / (values.size - 1)
+                    drawContext.canvas.nativeCanvas.drawText(
+                        values[index].date.format(formatter),
+                        x - 16.dp.toPx(),
+                        size.height - 4.dp.toPx(),
+                        labelPaint,
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ChartLegendItem(color: Color, label: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Canvas(Modifier.padding(top = 7.dp).height(3.dp).weight(0.18f)) {
+            drawLine(color, androidx.compose.ui.geometry.Offset.Zero,
+                androidx.compose.ui.geometry.Offset(size.width, 0f), 2.dp.toPx())
+        }
+        Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
     }
 }
 
