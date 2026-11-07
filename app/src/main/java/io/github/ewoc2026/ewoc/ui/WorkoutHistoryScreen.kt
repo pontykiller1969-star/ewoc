@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -237,7 +238,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
 @Composable
 private fun ChartLegendItem(color: Color, label: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Canvas(Modifier.padding(top = 7.dp).height(3.dp).weight(0.18f)) {
+        Canvas(Modifier.padding(top = 7.dp).height(3.dp).width(16.dp)) {
             drawLine(color, androidx.compose.ui.geometry.Offset.Zero,
                 androidx.compose.ui.geometry.Offset(size.width, 0f), 2.dp.toPx())
         }
