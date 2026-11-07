@@ -223,6 +223,9 @@ if ./scripts/gradle-safe.sh :app:compileDebugKotlin >/tmp/ergometer-dev-doctor-b
 else
   fail "Gradle compile check failed (:app:compileDebugKotlin)"
   echo "      See /tmp/ergometer-dev-doctor-build.log for details"
+  echo "      ---- Gradle compiler output (last 160 lines) ----"
+  tail -n 160 /tmp/ergometer-dev-doctor-build.log || true
+  echo "      ---- End Gradle compiler output ----"
 fi
 
 print_header "Summary"

@@ -99,6 +99,7 @@ internal fun MainActivityContent(
     onSessionSetupModeSelected: (SessionSetupMode) -> Unit = {},
     onActiveMenuSetupStepChanged: (MenuSetupStep?) -> Unit = {},
     onOpenBaselineFitnessTest: () -> Unit = {},
+    onOpenWorkoutHistory: () -> Unit = {},
     baselineFitnessTestRuntimeSnapshot: BaselineFitnessTestRuntimeSnapshot = BaselineFitnessTestRuntimeSnapshot(),
     onStartBaselineFitnessTest: () -> Unit = {},
     onStopBaselineFitnessTest: () -> Unit = {},
@@ -154,6 +155,7 @@ internal fun MainActivityContent(
             onSessionSetupModeSelected = onSessionSetupModeSelected,
             onActiveMenuSetupStepChanged = onActiveMenuSetupStepChanged,
             onOpenBaselineFitnessTest = onOpenBaselineFitnessTest,
+            onOpenWorkoutHistory = onOpenWorkoutHistory,
             baselineFitnessTestRuntimeSnapshot = baselineFitnessTestRuntimeSnapshot,
             onStartBaselineFitnessTest = onStartBaselineFitnessTest,
             onStopBaselineFitnessTest = onStopBaselineFitnessTest,
@@ -212,6 +214,7 @@ private fun MainDestinationContent(
     onSessionSetupModeSelected: (SessionSetupMode) -> Unit = {},
     onActiveMenuSetupStepChanged: (MenuSetupStep?) -> Unit = {},
     onOpenBaselineFitnessTest: () -> Unit = {},
+    onOpenWorkoutHistory: () -> Unit = {},
     baselineFitnessTestRuntimeSnapshot: BaselineFitnessTestRuntimeSnapshot = BaselineFitnessTestRuntimeSnapshot(),
     onStartBaselineFitnessTest: () -> Unit = {},
     onStopBaselineFitnessTest: () -> Unit = {},
@@ -252,6 +255,7 @@ private fun MainDestinationContent(
                 onSessionSetupModeSelected = onSessionSetupModeSelected,
                 onActiveSetupStepChanged = onActiveMenuSetupStepChanged,
                 onOpenBaselineFitnessTest = onOpenBaselineFitnessTest,
+                onOpenWorkoutHistory = onOpenWorkoutHistory,
                 onOpenEwoEditor = onOpenEwoEditor,
             )
         }
@@ -322,6 +326,10 @@ private fun MainDestinationContent(
                 onEndSessionAfterWorkoutComplete = onEndSessionAfterWorkoutComplete,
                 onSessionDebugProbeSignal = onSessionDebugProbeSignal,
             )
+        }
+
+        model.screen == AppScreen.WORKOUT_HISTORY -> {
+            WorkoutHistoryScreen(onBack = onBackToMenu)
         }
 
         model.screen == AppScreen.SUMMARY -> {

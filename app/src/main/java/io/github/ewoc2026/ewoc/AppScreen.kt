@@ -11,4 +11,5 @@ enum class AppScreen {
     SESSION,
     SUMMARY,
     BASELINE_FITNESS_TEST,
+    WORKOUT_HISTORY,
 }

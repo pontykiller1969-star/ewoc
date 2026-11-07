@@ -113,6 +113,8 @@ android {
     }
     buildTypes {
         debug {
+            // Keep the custom debug build installable alongside the Play Store/original Ewoc app.
+            applicationIdSuffix = ".workouthistory"
             buildConfigField("boolean", "ALLOW_LEGACY_WORKOUT_FALLBACK", allowLegacyWorkoutFallbackDebug.get())
             buildConfigField("boolean", "VERBOSE_TELEMETRY_LOGGING", "true")
         }
