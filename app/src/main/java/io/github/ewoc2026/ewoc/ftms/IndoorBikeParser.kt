@@ -71,62 +71,33 @@ fun parseIndoorBikeData(
         val flags = u16()
         fun flag(bit: Int) = (flags and (1 shl bit)) != 0
 
-        /* -------------------------------------------------------------
-         * FIXED FIELD
-         * ------------------------------------------------------------- */
         // Instantaneous Speed (always present)
         val instantaneousSpeedKmh = u16() / 100.0
 
-        /* -------------------------------------------------------------
-         * OPTIONAL FIELDS (TUNTURI ORDER)
-         * ------------------------------------------------------------- */
-        val averageSpeedKmh =
-            if (flag(1)) u16() / 100.0 else null
-
-        val instantaneousCadenceRpm =
-            if (flag(2)) u16() / 2.0 else null
-
-        val averageCadenceRpm =
-            if (flag(3)) u16() / 2.0 else null
+        // Optional fields (Tunturi order)
+        val averageSpeedKmh = if (flag(1)) u16() / 100.0 else null
+        val instantaneousCadenceRpm = if (flag(2)) u16() / 2.0 else null
+        val averageCadenceRpm = if (flag(3)) u16() / 2.0 else null
 
         val totalDistanceMeters =
             if (flag(4)) {
-                // Tunturi reports Total Distance in decimeters for this characteristic.
-                // Convert to meters so downstream session summaries stay unit-consistent.
-                u24() / 10
+                // Domyos X-Bike 100 V2 reports a value that the base app
+                // under-scales by 10; retain the raw counter as corrected meters.
+                u24()
             } else {
                 null
             }
 
-        val resistanceLevel =
-            if (flag(5)) u16() else null
-
-        val instantaneousPowerW =
-            if (flag(6)) s16() else null
-
-        val averagePowerW =
-            if (flag(7)) s16() else null
-
-        val totalEnergyKcal =
-            if (flag(8)) u16() else null
-
-        val energyPerHourKcal =
-            if (flag(9)) u16() else null
-
-        val energyPerMinuteKcal =
-            if (flag(10)) u8() else null
-
-        val heartRateBpm =
-            if (flag(11)) u8() else null
-
-        val metabolicEquivalent =
-            if (flag(12)) u8() / 10.0 else null
-
-        val elapsedTimeSeconds =
-            if (flag(13)) u16() else null
-
-        val remainingTimeSeconds =
-            if (flag(14)) u16() else null
+        val resistanceLevel = if (flag(5)) u16() else null
+        val instantaneousPowerW = if (flag(6)) s16() else null
+        val averagePowerW = if (flag(7)) s16() else null
+        val totalEnergyKcal = if (flag(8)) u16() else null
+        val energyPerHourKcal = if (flag(9)) u16() else null
+        val energyPerMinuteKcal = if (flag(10)) u8() else null
+        val heartRateBpm = if (flag(11)) u8() else null
+        val metabolicEquivalent = if (flag(12)) u8() / 10.0 else null
+        val elapsedTimeSeconds = if (flag(13)) u16() else null
+        val remainingTimeSeconds = if (flag(14)) u16() else null
 
         IndoorBikeData(
             valid = true,
@@ -177,12 +148,11 @@ fun parseIndoorBikeData(
     }
 }
 
-private fun classifyParseFailureReason(exception: Exception): IndoorBikeParseFailureReason {
-    return when (exception) {
+private fun classifyParseFailureReason(exception: Exception): IndoorBikeParseFailureReason =
+    when (exception) {
         is IndexOutOfBoundsException -> IndoorBikeParseFailureReason.TRUNCATED_PAYLOAD
         else -> IndoorBikeParseFailureReason.UNEXPECTED_EXCEPTION
     }
-}
 
 private fun extractFlagsOrNull(bytes: ByteArray): Int? {
     if (bytes.size < 2) return null
