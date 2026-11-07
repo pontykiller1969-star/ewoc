@@ -8,17 +8,17 @@ import org.junit.Test
 
 class IndoorBikeParserTest {
     @Test
-    fun parsesTotalDistanceAsMetersFromDecimeterPayload() {
+    fun appliesTenfoldDistanceCorrectionForDomyosBike() {
         val payload = byteArrayOf(
             0x10, 0x00, // flags: bit 4 (Total Distance present)
             0x00, 0x00, // instantaneous speed (required field)
-            0x10, 0x27, 0x00, // total distance raw = 10000 decimeters => 1000 meters
+            0x10, 0x27, 0x00, // raw distance counter = 10000
         )
 
         val parsed = parseIndoorBikeData(payload)
 
         assertTrue(parsed.valid)
-        assertEquals(1000, parsed.totalDistanceMeters)
+        assertEquals(10000, parsed.totalDistanceMeters)
     }
 
     @Test
