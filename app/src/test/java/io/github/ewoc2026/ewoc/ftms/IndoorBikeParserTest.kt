@@ -8,7 +8,7 @@ import org.junit.Test
 
 class IndoorBikeParserTest {
     @Test
-    fun appliesSixfoldDistanceCorrectionForDomyosBike() {
+    fun appliesOnePointFiveDistanceCorrectionForDomyosBike() {
         val payload = byteArrayOf(
             0x10, 0x00, // flags: bit 4 (Total Distance present)
             0x00, 0x00, // instantaneous speed (required field)
@@ -18,7 +18,7 @@ class IndoorBikeParserTest {
         val parsed = parseIndoorBikeData(payload)
 
         assertTrue(parsed.valid)
-        assertEquals(60000, parsed.totalDistanceMeters)
+        assertEquals(15000, parsed.totalDistanceMeters)
     }
 
     @Test
