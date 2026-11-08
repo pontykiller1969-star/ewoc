@@ -1,6 +1,9 @@
 package io.github.ewoc2026.ewoc.ui
 
 import android.graphics.Paint
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +63,40 @@ private data class DailyWorkoutTotals(
 @Composable
 internal fun WorkoutHistoryScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val sessions = remember { SessionStorage.loadAll(context) }
+    var refreshKey by remember { mutableIntStateOf(0) }
+    var backupMessage by remember { mutableStateOf<String?>(null) }
+    val sessions = remember(refreshKey) { SessionStorage.loadAll(context) }
+    val exportBackup = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip"),
+    ) { uri ->
+        if (uri != null) {
+            val count = runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { SessionStorage.exportBackup(context, it) }
+                    ?: error("Nem sikerült megnyitni a mentési fájlt.")
+            }.getOrElse {
+                backupMessage = "A mentés nem sikerült: ${it.localizedMessage ?: "ismeretlen hiba"}"
+                null
+            }
+            if (count != null) backupMessage = "$count edzés mentve ZIP-fájlba."
+        }
+    }
+    val importBackup = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            val count = runCatching {
+                context.contentResolver.openInputStream(uri)?.use { SessionStorage.importBackup(context, it) }
+                    ?: error("Nem sikerült megnyitni a mentési fájlt.")
+            }.getOrElse {
+                backupMessage = "A visszaállítás nem sikerült: ${it.localizedMessage ?: "ismeretlen hiba"}"
+                null
+            }
+            if (count != null) {
+                refreshKey++
+                backupMessage = "$count edzés visszaállítva. A már meglévő edzések megmaradtak."
+            }
+        }
+    }
     val zone = remember { ZoneId.systemDefault() }
     val today = remember { LocalDate.now(zone) }
     val weekStart = remember(today) { today.minusDays((today.dayOfWeek.value - 1).toLong()) }
@@ -95,6 +131,17 @@ internal fun WorkoutHistoryScreen(onBack: () -> Unit) {
     ) {
         Text("Edzésnapló", style = MaterialTheme.typography.headlineMedium)
         Text("Az edzések adatai ezen a telefonon, helyben vannak tárolva.", style = MaterialTheme.typography.bodyMedium)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = { exportBackup.launch("ewoc-edzesnaplo-mentes.zip") },
+                modifier = Modifier.weight(1f),
+            ) { Text("Edzések mentése") }
+            OutlinedButton(
+                onClick = { importBackup.launch(arrayOf("application/zip", "application/octet-stream")) },
+                modifier = Modifier.weight(1f),
+            ) { Text("Mentés visszaállítása") }
+        }
+        backupMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SummaryCard("Ma", todaySessions, Modifier.weight(1f))
             SummaryCard("Ezen a héten", weekSessions, Modifier.weight(1f))
