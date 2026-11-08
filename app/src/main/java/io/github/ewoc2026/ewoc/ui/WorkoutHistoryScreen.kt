@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
@@ -202,7 +203,12 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                     )
                 }
 
-                fun drawSeries(color: Color, valueAt: (DailyWorkoutTotals) -> Double, maximum: Double) {
+                fun drawSeries(
+                    color: Color,
+                    valueAt: (DailyWorkoutTotals) -> Double,
+                    maximum: Double,
+                    dashPattern: FloatArray? = null,
+                ) {
                     val path = Path()
                     values.forEachIndexed { index, item ->
                         val x = if (values.size == 1) left + plotWidth / 2f
@@ -210,14 +216,21 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                         val normalized = (valueAt(item) / maximum).toFloat().coerceIn(0f, 1f)
                         val y = bottom - normalized * plotHeight
                         if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                        drawCircle(color, radius = 2.8.dp.toPx(), center = androidx.compose.ui.geometry.Offset(x, y))
                     }
-                    drawPath(path, color, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round))
+                    val effect = dashPattern?.let { PathEffect.dashPathEffect(it, 0f) }
+                    drawPath(
+                        path,
+                        color,
+                        style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round, pathEffect = effect),
+                    )
                 }
 
-                drawSeries(DurationChartColor, { it.durationMinutes }, durationMax)
-                drawSeries(CaloriesChartColor, { it.calories }, caloriesMax)
-                drawSeries(DistanceChartColor, { it.distanceKm }, distanceMax)
+                // The series share the same active dates, so their normalized paths can overlap.
+                // Distinct dash patterns keep all three metrics visible instead of letting the
+                // last (green) series completely cover the blue and red ones.
+                drawSeries(DurationChartColor, { it.durationMinutes }, durationMax, floatArrayOf(10f, 6f))
+                drawSeries(CaloriesChartColor, { it.calories }, caloriesMax, floatArrayOf(4f, 4f))
+                drawSeries(DistanceChartColor, { it.distanceKm }, distanceMax, floatArrayOf(2f, 4f))
 
                 val labelIndexes = listOf(0, values.size / 2, values.lastIndex).distinct()
                 labelIndexes.forEach { index ->
