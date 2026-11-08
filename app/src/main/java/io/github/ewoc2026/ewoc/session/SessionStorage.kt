@@ -84,7 +84,7 @@ object SessionStorage {
     }
 
     private val SESSION_FILE_PATTERN =
-        Regex("session_\\\\d{4}-\\\\d{2}-\\\\d{2}_\\\\d{2}-\\\\d{2}-\\\\d{2}-\\\\d{3}\\\\.txt")
+        Regex("session_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}\\.txt")
     private const val MAX_SESSION_FILE_BYTES = 1024 * 1024
 
     /** Returns all saved sessions, newest first, including files from older app versions. */
