@@ -81,9 +81,9 @@ fun parseIndoorBikeData(
 
         val totalDistanceMeters =
             if (flag(4)) {
-                // Domyos X-Bike 100 V2 distance correction: scale the raw
-                // counter by 6 to obtain the corrected distance in meters.
-                u24() * 6
+                // Domyos X-Bike 100 V2 calibration: scale the raw counter
+                // by 1.5 to match the bike's displayed distance in meters.
+                (u24() * 3 + 1) / 2
             } else {
                 null
             }
