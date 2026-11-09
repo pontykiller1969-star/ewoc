@@ -272,12 +272,11 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                     )
                 }
 
-                // The series share the same active dates, so their normalized paths can overlap.
-                // Distinct dash patterns keep all three metrics visible instead of letting the
-                // last (green) series completely cover the blue and red ones.
+                // Draw duration and distance first, then calories last so the important
+                // red kcal line always remains visible on top when the paths overlap.
                 drawSeries(DurationChartColor, { it.durationMinutes }, durationMax, floatArrayOf(10f, 6f))
-                drawSeries(CaloriesChartColor, { it.calories }, caloriesMax, floatArrayOf(4f, 4f))
                 drawSeries(DistanceChartColor, { it.distanceKm }, distanceMax, floatArrayOf(2f, 4f))
+                drawSeries(CaloriesChartColor, { it.calories }, caloriesMax, floatArrayOf(4f, 4f))
 
                 val labelIndexes = listOf(0, values.size / 2, values.lastIndex).distinct()
                 labelIndexes.forEach { index ->
