@@ -278,6 +278,34 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                 drawSeries(DistanceChartColor, { it.distanceKm }, distanceMax, floatArrayOf(2f, 4f))
                 drawSeries(CaloriesChartColor, { it.calories }, caloriesMax, floatArrayOf(4f, 4f))
 
+                // Show the actual daily kcal value beside every active red data point.
+                // The chart's shared vertical scale remains normalized, so these labels
+                // provide the exact calorie count for each day.
+                val kcalLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = android.graphics.Color.rgb(224, 82, 82)
+                    textSize = 10.dp.toPx()
+                    textAlign = Paint.Align.CENTER
+                    typeface = android.graphics.Typeface.create(
+                        android.graphics.Typeface.DEFAULT,
+                        android.graphics.Typeface.BOLD,
+                    )
+                }
+                values.forEachIndexed { index, item ->
+                    if (item.calories > 0.0) {
+                        val x = if (values.size == 1) left + plotWidth / 2f
+                            else left + plotWidth * index / (values.size - 1)
+                        val normalized = (item.calories / caloriesMax).toFloat().coerceIn(0f, 1f)
+                        val y = bottom - normalized * plotHeight
+                        val labelY = (y - 9.dp.toPx()).coerceAtLeast(top + 10.dp.toPx())
+                        drawContext.canvas.nativeCanvas.drawText(
+                            item.calories.toInt().toString(),
+                            x,
+                            labelY,
+                            kcalLabelPaint,
+                        )
+                    }
+                }
+
                 val labelIndexes = listOf(0, values.size / 2, values.lastIndex).distinct()
                 labelIndexes.forEach { index ->
                     val x = if (values.size == 1) left + plotWidth / 2f
