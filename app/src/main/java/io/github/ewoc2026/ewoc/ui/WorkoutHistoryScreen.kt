@@ -253,7 +253,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
             )
             Canvas(Modifier.fillMaxWidth().height(if (expanded) 520.dp else 190.dp)) {
                 if (values.isEmpty()) return@Canvas
-                val left = 125.dp.toPx()
+                val left = 52.dp.toPx()
                 val right = size.width - 10.dp.toPx()
                 val top = 10.dp.toPx()
                 val bottom = size.height - 28.dp.toPx()
@@ -279,7 +279,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                         androidx.compose.ui.geometry.Offset(right, y),
                         1.dp.toPx(),
                     )
-                    val label = "${(durationMax * fraction).toInt()}p / ${(caloriesMax * fraction).toInt()}kcal / ${String.format(Locale.getDefault(), "%.1f", distanceMax * fraction)}km"
+                    val label = "${(caloriesMax * fraction).toInt()} kcal"
                     drawContext.canvas.nativeCanvas.drawText(
                         label,
                         left - 6.dp.toPx(),
