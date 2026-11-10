@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -200,18 +203,44 @@ internal fun WorkoutHistoryScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
+private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boolean = false) {
+    var showExpanded by remember { mutableStateOf(false) }
     val durationMax = max(1.0, values.maxOfOrNull { it.durationMinutes } ?: 0.0)
     val caloriesMax = max(1.0, values.maxOfOrNull { it.calories } ?: 0.0)
     val distanceMax = max(1.0, values.maxOfOrNull { it.distanceKm } ?: 0.0)
     val formatter = remember { DateTimeFormatter.ofPattern("MM.dd", Locale.getDefault()) }
 
+    if (showExpanded && !expanded) {
+        Dialog(
+            onDismissRequest = { showExpanded = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Card(
+                modifier = Modifier.fillMaxSize().padding(8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            ) {
+                Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Teljesítmény – nagyított grafikon", style = MaterialTheme.typography.titleLarge)
+                        OutlinedButton(onClick = { showExpanded = false }) { Text("Bezárás") }
+                    }
+                    CombinedWorkoutChart(values = values, expanded = true)
+                }
+            }
+        }
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().then(
+            if (!expanded) Modifier.clickable { showExpanded = true } else Modifier
+        ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Teljesítmény – napi alakulás", style = MaterialTheme.typography.titleMedium)
+            Text(
+                if (expanded) "Teljesítmény – napi alakulás" else "Teljesítmény – napi alakulás (érintsd meg a nagyításhoz)",
+                style = if (expanded) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium
+            )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ChartLegendItem(DurationChartColor, "Idő (perc)")
                 ChartLegendItem(CaloriesChartColor, "Kalória (kcal)")
@@ -222,7 +251,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Canvas(Modifier.fillMaxWidth().height(190.dp)) {
+            Canvas(Modifier.fillMaxWidth().height(if (expanded) 520.dp else 190.dp)) {
                 if (values.isEmpty()) return@Canvas
                 val left = 38.dp.toPx()
                 val right = size.width - 10.dp.toPx()
