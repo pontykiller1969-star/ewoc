@@ -126,6 +126,7 @@ internal fun MenuScreen(
     onStartSession: () -> Unit,
     onSelectStarterWorkout: () -> Unit = {},
     onOpenBaselineFitnessTest: () -> Unit = {},
+    onOpenWorkoutHistory: () -> Unit = {},
     onSelectTelemetryOnlyMode: () -> Unit = {},
     onSessionSetupModeSelected: (SessionSetupMode) -> Unit = {},
     onActiveSetupStepChanged: (MenuSetupStep?) -> Unit = {},
@@ -439,6 +440,7 @@ internal fun MenuScreen(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
+                    TextButton(onClick = onOpenWorkoutHistory) { Text("Edzésnapló") }
                     IconButton(
                         onClick = { showAboutDialog = true },
                         modifier = Modifier.size(40.dp),

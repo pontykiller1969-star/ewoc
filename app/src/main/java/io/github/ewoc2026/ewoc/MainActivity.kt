@@ -268,6 +268,7 @@ class MainActivity : ComponentActivity() {
                 onSessionSetupModeSelected = { mode -> viewModel.onSessionSetupModeSelected(mode) },
                 onActiveMenuSetupStepChanged = { step -> viewModel.onActiveMenuSetupStepChanged(step) },
                 onOpenBaselineFitnessTest = { viewModel.onOpenBaselineFitnessTestRequested() },
+                onOpenWorkoutHistory = { viewModel.onOpenWorkoutHistoryRequested() },
                 baselineFitnessTestRuntimeSnapshot = viewModel.baselineFitnessTestRuntimeSnapshotState.value,
                 onStartBaselineFitnessTest = { viewModel.onStartBaselineFitnessTestRequested() },
                 onStopBaselineFitnessTest = { viewModel.onStopBaselineFitnessTestRequested() },

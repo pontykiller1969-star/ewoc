@@ -98,7 +98,8 @@ internal class AiAssistantSupport(
             AppScreen.SUMMARY,
             AppScreen.STOPPING -> AiPhase.SUMMARY
             AppScreen.CONNECTING,
-            AppScreen.BASELINE_FITNESS_TEST -> null
+            AppScreen.BASELINE_FITNESS_TEST,
+            AppScreen.WORKOUT_HISTORY -> null
         }
     }
 
