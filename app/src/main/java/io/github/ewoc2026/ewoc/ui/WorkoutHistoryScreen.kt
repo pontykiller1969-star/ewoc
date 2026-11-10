@@ -311,15 +311,23 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                 // The chart's shared vertical scale remains normalized, so these labels
                 // provide the exact calorie count for each day.
                 val kcalLabelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = android.graphics.Color.rgb(224, 82, 82)
-                    textSize = 10.dp.toPx()
+                    color = android.graphics.Color.rgb(170, 35, 35)
+                    textSize = 13.dp.toPx()
                     textAlign = Paint.Align.CENTER
                     typeface = android.graphics.Typeface.create(
                         android.graphics.Typeface.DEFAULT,
                         android.graphics.Typeface.BOLD,
                     )
-                    // A light halo keeps the red numbers readable over chart lines.
-                    setShadowLayer(3f, 0f, 0f, android.graphics.Color.WHITE)
+                    isSubpixelText = true
+                }
+                val kcalLabelBackground = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = android.graphics.Color.WHITE
+                    style = Paint.Style.FILL
+                }
+                val kcalLabelBorder = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = android.graphics.Color.rgb(224, 82, 82)
+                    style = Paint.Style.STROKE
+                    strokeWidth = 1.dp.toPx()
                 }
                 values.forEachIndexed { index, item ->
                     if (item.calories > 0.0) {
@@ -327,14 +335,30 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                             else left + plotWidth * index / (values.size - 1)
                         val normalized = (item.calories / caloriesMax).toFloat().coerceIn(0f, 1f)
                         val y = bottom - normalized * plotHeight
-                        // Keep the kcal value clearly separated from the red line.
-                        val labelY = (y - 22.dp.toPx()).coerceAtLeast(top + 12.dp.toPx())
-                        drawContext.canvas.nativeCanvas.drawText(
-                            item.calories.toInt().toString(),
-                            x,
-                            labelY,
-                            kcalLabelPaint,
+                        val label = item.calories.toInt().toString()
+                        val halfText = kcalLabelPaint.measureText(label) / 2f
+                        val horizontalPadding = 5.dp.toPx()
+                        val verticalPadding = 3.dp.toPx()
+                        val baseline = (y - 25.dp.toPx()).coerceAtLeast(
+                            top + kcalLabelPaint.textSize + verticalPadding + 2.dp.toPx()
                         )
+                        val centerX = x.coerceIn(
+                            left + halfText + horizontalPadding,
+                            right - halfText - horizontalPadding,
+                        )
+                        val rect = android.graphics.RectF(
+                            centerX - halfText - horizontalPadding,
+                            baseline - kcalLabelPaint.textSize - verticalPadding,
+                            centerX + halfText + horizontalPadding,
+                            baseline + verticalPadding,
+                        )
+                        drawContext.canvas.nativeCanvas.drawRoundRect(
+                            rect, 5.dp.toPx(), 5.dp.toPx(), kcalLabelBackground
+                        )
+                        drawContext.canvas.nativeCanvas.drawRoundRect(
+                            rect, 5.dp.toPx(), 5.dp.toPx(), kcalLabelBorder
+                        )
+                        drawContext.canvas.nativeCanvas.drawText(label, centerX, baseline, kcalLabelPaint)
                     }
                 }
 
