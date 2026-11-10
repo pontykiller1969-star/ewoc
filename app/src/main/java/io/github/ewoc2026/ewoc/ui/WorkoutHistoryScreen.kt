@@ -253,7 +253,8 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
             )
             Canvas(Modifier.fillMaxWidth().height(if (expanded) 520.dp else 190.dp)) {
                 if (values.isEmpty()) return@Canvas
-                val left = 52.dp.toPx()
+                // Reserve enough room for the kcal tick labels outside the plot area.
+                val left = 76.dp.toPx()
                 val right = size.width - 10.dp.toPx()
                 val top = 10.dp.toPx()
                 val bottom = size.height - 28.dp.toPx()
@@ -267,8 +268,12 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                 // Each metric is labelled in its own unit on the left axis.
                 val axisPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = android.graphics.Color.DKGRAY
-                    textSize = 10.dp.toPx()
+                    textSize = 11.dp.toPx()
                     textAlign = Paint.Align.RIGHT
+                    typeface = android.graphics.Typeface.create(
+                        android.graphics.Typeface.DEFAULT,
+                        android.graphics.Typeface.BOLD,
+                    )
                 }
                 for (tick in 0..4) {
                     val fraction = tick / 4f
@@ -282,7 +287,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                     val label = "${(caloriesMax * fraction).toInt()} kcal"
                     drawContext.canvas.nativeCanvas.drawText(
                         label,
-                        left - 6.dp.toPx(),
+                        left - 8.dp.toPx(),
                         y + 4.dp.toPx(),
                         axisPaint,
                     )
