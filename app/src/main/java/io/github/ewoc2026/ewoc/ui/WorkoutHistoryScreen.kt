@@ -254,7 +254,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
             Canvas(Modifier.fillMaxWidth().height(if (expanded) 520.dp else 190.dp)) {
                 if (values.isEmpty()) return@Canvas
                 // Reserve enough room for the kcal tick labels outside the plot area.
-                val left = 76.dp.toPx()
+                val left = 132.dp.toPx()
                 val right = size.width - 10.dp.toPx()
                 val top = 10.dp.toPx()
                 val bottom = size.height - 28.dp.toPx()
@@ -284,7 +284,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                         androidx.compose.ui.geometry.Offset(right, y),
                         1.dp.toPx(),
                     )
-                    val label = "${(caloriesMax * fraction).toInt()} kcal"
+                    val label = "${(caloriesMax * fraction).toInt()} kcal • ${(durationMax * fraction).toInt()} p"
                     drawContext.canvas.nativeCanvas.drawText(
                         label,
                         left - 8.dp.toPx(),
