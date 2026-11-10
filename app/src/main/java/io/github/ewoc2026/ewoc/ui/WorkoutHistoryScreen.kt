@@ -261,14 +261,14 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                 val plotWidth = (right - left).coerceAtLeast(1f)
                 val plotHeight = (bottom - top).coerceAtLeast(1f)
                 val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = android.graphics.Color.DKGRAY
+                    color = android.graphics.Color.LTGRAY
                     textSize = 10.dp.toPx()
                 }
                 // Five evenly spaced horizontal levels: 0, 25, 50, 75 and 100%.
                 // Each metric is labelled in its own unit on the left axis.
                 val axisPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = android.graphics.Color.DKGRAY
-                    textSize = 11.dp.toPx()
+                    color = android.graphics.Color.WHITE
+                    textSize = 12.dp.toPx()
                     textAlign = Paint.Align.RIGHT
                     typeface = android.graphics.Typeface.create(
                         android.graphics.Typeface.DEFAULT,
