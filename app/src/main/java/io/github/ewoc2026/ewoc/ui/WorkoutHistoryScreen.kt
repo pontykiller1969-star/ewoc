@@ -289,6 +289,8 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                         android.graphics.Typeface.DEFAULT,
                         android.graphics.Typeface.BOLD,
                     )
+                    // A light halo keeps the red numbers readable over chart lines.
+                    setShadowLayer(3f, 0f, 0f, android.graphics.Color.WHITE)
                 }
                 values.forEachIndexed { index, item ->
                     if (item.calories > 0.0) {
@@ -296,7 +298,8 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>) {
                             else left + plotWidth * index / (values.size - 1)
                         val normalized = (item.calories / caloriesMax).toFloat().coerceIn(0f, 1f)
                         val y = bottom - normalized * plotHeight
-                        val labelY = (y - 9.dp.toPx()).coerceAtLeast(top + 10.dp.toPx())
+                        // Keep the kcal value clearly separated from the red line.
+                        val labelY = (y - 22.dp.toPx()).coerceAtLeast(top + 12.dp.toPx())
                         drawContext.canvas.nativeCanvas.drawText(
                             item.calories.toInt().toString(),
                             x,
