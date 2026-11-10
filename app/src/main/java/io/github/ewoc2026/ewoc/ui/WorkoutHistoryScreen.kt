@@ -253,7 +253,7 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
             )
             Canvas(Modifier.fillMaxWidth().height(if (expanded) 520.dp else 190.dp)) {
                 if (values.isEmpty()) return@Canvas
-                val left = 38.dp.toPx()
+                val left = 125.dp.toPx()
                 val right = size.width - 10.dp.toPx()
                 val top = 10.dp.toPx()
                 val bottom = size.height - 28.dp.toPx()
@@ -263,8 +263,8 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                     color = android.graphics.Color.DKGRAY
                     textSize = 10.dp.toPx()
                 }
-                // Five evenly spaced horizontal levels: 0, 25, 50, 75 and 100%
-                // The labels show the corresponding calorie values for the red series.
+                // Five evenly spaced horizontal levels: 0, 25, 50, 75 and 100%.
+                // Each metric is labelled in its own unit on the left axis.
                 val axisPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = android.graphics.Color.DKGRAY
                     textSize = 10.dp.toPx()
@@ -279,9 +279,9 @@ private fun CombinedWorkoutChart(values: List<DailyWorkoutTotals>, expanded: Boo
                         androidx.compose.ui.geometry.Offset(right, y),
                         1.dp.toPx(),
                     )
-                    val calorieValue = (caloriesMax * fraction).toInt()
+                    val label = "${(durationMax * fraction).toInt()}p / ${(caloriesMax * fraction).toInt()}kcal / ${String.format(Locale.getDefault(), "%.1f", distanceMax * fraction)}km"
                     drawContext.canvas.nativeCanvas.drawText(
-                        calorieValue.toString(),
+                        label,
                         left - 6.dp.toPx(),
                         y + 4.dp.toPx(),
                         axisPaint,
